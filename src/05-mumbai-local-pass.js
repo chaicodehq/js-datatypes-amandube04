@@ -42,5 +42,44 @@
  *   // => "INVALID PASS"
  */
 export function generateLocalPass(passenger) {
-  // Your code here
+  if (typeof passenger !== "object" || passenger === null)
+    return "INVALID PASS";
+
+  if (
+    passenger.classType.toLowerCase() !== "first" &&
+    passenger.classType.toLowerCase() !== "second"
+  )
+    return "INVALID PASS";
+
+  // Check Key exist
+
+  const validDetails = ["name", "from", "to", "classType"];
+
+  const verifyStructure = (validDetails, details) => {
+    const detailKeys = Object.keys(details);
+    return validDetails.every((key) => detailKeys.includes(key));
+  };
+  if (!verifyStructure(validDetails, passenger)) return "INVALID PASS";
+
+  // handle empty String
+
+  const hasEmpty = Object.values(passenger).some(
+    (value) => typeof value === "string" && value.trim() === "",
+  );
+
+  if (hasEmpty) return "INVALID PASS";
+
+  let formatedFrom =
+    passenger.from.charAt(0).toUpperCase() +
+    passenger.from.slice(1).toLowerCase();
+
+  let formatedTo =
+    passenger.to.charAt(0).toUpperCase() + passenger.to.slice(1).toLowerCase();
+
+  let buildPassword =
+    passenger.classType.charAt(0).toUpperCase() +
+    passenger.from.slice(0, 3).toUpperCase() +
+    passenger.to.slice(0, 3).toUpperCase();
+
+  return `MUMBAI LOCAL PASS\n---\nName: ${passenger.name.toUpperCase()}\nFrom: ${formatedFrom}\nTo: ${formatedTo}\nClass: ${passenger.classType.toUpperCase()}\nPass ID: ${buildPassword}`;
 }

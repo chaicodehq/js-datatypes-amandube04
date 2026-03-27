@@ -41,5 +41,77 @@
  *   // => { name: "Priya", totalMarks: 63, percentage: 31.5, grade: "F", ... }
  */
 export function generateReportCard(student) {
-  // Your code here
+  if (typeof student !== "object" || student === null) return null;
+  if (
+    typeof student.name !== "string" ||
+    student.name === null ||
+    student.name.trim() === ""
+  )
+    return null;
+  if (
+    typeof student.marks !== "object" ||
+    Object.keys(student.marks).length === 0
+  )
+    return null;
+  const checkInvalidNumber = Object.values(student.marks).some((mark) => {
+    return mark < 0 || mark > 100 || typeof mark !== "number";
+  });
+
+  if (checkInvalidNumber) return null;
+
+  const totalMarks = Object.values(student.marks).reduce((sum, val) => {
+    return sum + val;
+  }, 0);
+
+  const numberOfSubject = Object.values(student.marks).length;
+
+  const percentage = parseFloat(
+    ((totalMarks / (numberOfSubject * 100)) * 100).toFixed(2),
+  );
+
+  let grade;
+  if (percentage >= 90) {
+    grade = "A+";
+  } else if (percentage >= 80) {
+    grade = "A";
+  } else if (percentage >= 70) {
+    grade = "B";
+  } else if (percentage >= 60) {
+    grade = "C";
+  } else if (percentage >= 40) {
+    grade = "D";
+  } else {
+    grade = "F";
+  }
+
+  const subjectCount = Object.entries(student.marks).length;
+
+  const highestSubjectEntry = Object.entries(student.marks).reduce(
+    (currentBest, [key, value]) =>
+      value > currentBest[1] ? [key, value] : currentBest,
+  );
+  const lowestSubjectEntry = Object.entries(student.marks).reduce(
+    (currentBest, [key, value]) =>
+      value < currentBest[1] ? [key, value] : currentBest,
+  );
+
+  const passedSubjects = Object.entries(student.marks)
+    .filter(([key, value]) => value >= 40)
+    .map(([key, value]) => key);
+
+  const failedSubjects = Object.entries(student.marks)
+    .filter(([key, value]) => value < 40)
+    .map(([key, value]) => key);
+
+  return {
+    name: student.name,
+    totalMarks,
+    percentage,
+    grade,
+    highestSubject: highestSubjectEntry[0],
+    lowestSubject: lowestSubjectEntry[0],
+    passedSubjects,
+    failedSubjects,
+    subjectCount,
+  };
 }

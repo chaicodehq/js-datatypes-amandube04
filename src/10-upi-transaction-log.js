@@ -47,5 +47,76 @@
  *   //      frequentContact: "Swiggy", allAbove100: false, hasLargeTransaction: true }
  */
 export function analyzeUPITransactions(transactions) {
-  // Your code here
+  if (!Array.isArray(transactions) || transactions.length <= 0) return null;
+
+  const filtertedTransaction = transactions
+    .filter((value) => value.amount > 0)
+    .filter((t) => {
+      const type = t.type?.toLowerCase();
+      return type === "credit" || type === "debit";
+    });
+
+  if (filtertedTransaction.length === 0) return null;
+  const totalCredit = filtertedTransaction.reduce((sum, amount) => {
+    if (amount.type === "credit") {
+      sum += amount.amount;
+    }
+    return sum;
+  }, 0);
+
+  const totalDebit = filtertedTransaction.reduce((sum, amount) => {
+    if (amount.type === "debit") {
+      sum += amount.amount;
+    }
+    return sum;
+  }, 0);
+
+  const avgtransactionCount = filtertedTransaction.reduce(
+    (sum, value, index, arr) => {
+      sum += value.amount;
+      if (index === arr.length - 1) {
+        return (sum = Math.round(sum / filtertedTransaction.length));
+      }
+      return sum;
+    },
+    0,
+  );
+
+  const highestTransaction = filtertedTransaction.reduce((highest, current) => {
+    return current.amount > highest.amount ? current : highest;
+  }, filtertedTransaction[0]);
+
+  const categoryBreakdown = filtertedTransaction.reduce((acc, t) => {
+    const key = t.category;
+    acc[key] = (acc[key] || 0) + t.amount;
+    return acc;
+  }, {});
+
+  const contactMap = filtertedTransaction.reduce((acc, value) => {
+    const key = value.to;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  const frequentContact = Object.keys(contactMap).reduce((a, b) =>
+    contactMap[a] >= contactMap[b] ? a : b,
+  );
+
+  const allAbove100 = filtertedTransaction.every((val) => val.amount > 100);
+
+  const hasLargeTransaction = filtertedTransaction.some(
+    (val) => val.amount >= 5000,
+  );
+  return {
+    totalCredit: totalCredit,
+    totalDebit: totalDebit,
+    netBalance: totalCredit - totalDebit,
+    transactionCount: filtertedTransaction.length,
+    avgTransaction: avgtransactionCount,
+    highestTransaction: highestTransaction,
+    categoryBreakdown: categoryBreakdown,
+    frequentContact: frequentContact,
+    allAbove100: allAbove100,
+    hasLargeTransaction: hasLargeTransaction,
+  };
 }

@@ -4,7 +4,7 @@
  * Chintu ek WhatsApp chat analyzer bana raha hai. Usse raw WhatsApp
  * exported message line parse karni hai aur usme se date, time, sender,
  * aur message alag alag extract karna hai.
- *
+ *ff
  * WhatsApp export format:
  *   "DD/MM/YYYY, HH:MM - Sender Name: Message text here"
  *
@@ -38,6 +38,46 @@
  *   // => { date: "01/12/2024", time: "09:15", sender: "Priya",
  *   //      text: "I love this song", wordCount: 4, sentiment: "love" }
  */
-export function parseWhatsAppMessage(message) {
-  // Your code here
+export function parseWhatsAppMessage(passenger) {
+  if (typeof passenger !== "string") return null;
+  if (passenger.indexOf(" - ") === -1 || passenger.indexOf(": ") === -1)
+    return null;
+
+  let getDate = passenger.substring(0, passenger.indexOf(","));
+  let getTime = passenger
+    .substring(passenger.indexOf(",") + 1, passenger.indexOf("-"))
+    .trim();
+  let sender = passenger
+    .substring(passenger.indexOf(" - ") + 3, passenger.lastIndexOf(": "))
+    .trim();
+  let dashIndex = passenger.indexOf(" - ");
+  let colonIndex = passenger.indexOf(": ", dashIndex);
+  let message = passenger.substring(colonIndex + 2).trim();
+  let wordCount = message.split(" ").filter((msg) => msg !== "").length;
+  let sentiment;
+  let messageLower = message.toLowerCase();
+  if (
+    messageLower.includes("😂") ||
+    messageLower.includes(":)") ||
+    messageLower.includes("haha")
+  ) {
+    sentiment = "funny";
+  } else if (
+    messageLower.includes("❤") ||
+    messageLower.includes("love") ||
+    messageLower.includes("pyaar")
+  ) {
+    sentiment = "love";
+  } else {
+    sentiment = "neutral";
+  }
+
+  return {
+    date: getDate,
+    time: getTime,
+    sender: sender,
+    text: message,
+    wordCount: wordCount,
+    sentiment: sentiment,
+  };
 }
